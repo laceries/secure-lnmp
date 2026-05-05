@@ -1,0 +1,10 @@
+# SSH Security Hardening Example
+
+# 基于 /etc/ssh/sshd_config 的加固配置摘要
+
+PermitRootLogin no
+MaxAuthTries 3
+PubkeyAuthentication yes
+PermitEmptyPasswords no
+
+# PasswordAuthentication yes  # 后续配置密钥登录后改为 no
