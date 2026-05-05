@@ -12,3 +12,33 @@
 
 pkg/
 src/
+
+# Runtime files
+*.pid
+*.sock
+
+# Database files and backups
+data/
+mysql-data/
+*.sql
+*.dump
+
+# Secrets
+.env
+*.key
+*.pem
+*.crt
+id_rsa
+id_rsa.pub
+
+# Build artifacts
+build/
+tmp/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
