@@ -1,0 +1,127 @@
+user www-data;
+worker_processes auto;
+
+error_log  /usr/local/nginx/logs/error.log warn;
+pid        /usr/local/nginx/logs/nginx.pid;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for" '
+                    '$request_time $upstream_response_time';
+
+    access_log /usr/local/nginx/logs/access.log main;
+
+    sendfile    on;
+    tcp_nopush  on;
+    keepalive_timeout 65;
+
+    server_tokens off;
+    etag off;
+
+    fastcgi_hide_header X-Powered-By;
+    fastcgi_hide_header X-Redirect-By;
+
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    client_max_body_size 20m;
+
+    limit_req_zone $binary_remote_addr zone=general:10m rate=10r/s;
+
+    server {
+        listen 80 default_server;
+        server_name _;
+        return 444;
+    }
+
+    server {
+        listen 80;
+        server_name example.com;
+
+        location ^~ /.well-known/acme-challenge/ {
+            root /usr/local/nginx/html;
+            default_type text/plain;
+            allow all;
+        }
+
+        location / {
+            return 301 https://$host$request_uri;
+        }
+    }
+
+    server {
+        listen 443 ssl;
+        server_name example.com;
+
+        ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_session_cache shared:SSL:10m;
+        ssl_session_timeout 10m;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+
+        root /var/www/example.com;
+        index index.php index.html index.htm;
+
+        limit_req zone=general burst=20 nodelay;
+
+        location = /wp-config.php {
+            deny all;
+        }
+
+        location = /xmlrpc.php {
+            return 403;
+        }
+
+        location ~* ^/wp-content/uploads/.*\.php$ {
+            deny all;
+        }
+
+        location ~* ^/(readme\.html|license\.txt)$ {
+            deny all;
+        }
+
+        location / {
+            try_files $uri $uri/ /index.php?$args;
+        }
+
+        location ~ \.php$ {
+            try_files $uri =404;
+
+            fastcgi_pass 127.0.0.1:9000;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_param HTTPS on;
+            include fastcgi_params;
+        }
+
+        location ~ /\. {
+            deny all;
+            access_log off;
+            log_not_found off;
+        }
+
+        location ~* \.(bak|old|orig|save|swp|sql|tar|gz|zip)$ {
+            deny all;
+            access_log off;
+            log_not_found off;
+        }
+
+        error_page 500 502 503 504 /50x.html;
+
+        location = /50x.html {
+            root html;
+        }
+    }
+}

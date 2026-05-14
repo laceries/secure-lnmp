@@ -1,0 +1,16 @@
+[Unit]
+Description=PHP FastCGI Process Manager (source compiled)
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/usr/local/php/var/run/php-fpm.pid
+ExecStartPre=/usr/local/php/sbin/php-fpm -t
+ExecStart=/usr/local/php/sbin/php-fpm --fpm-config /usr/local/php/etc/php-fpm.conf
+ExecReload=/bin/kill -USR2 $MAINPID
+ExecStop=/bin/kill -QUIT $MAINPID
+PrivateTmp=true
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

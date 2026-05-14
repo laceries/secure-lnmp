@@ -1,44 +1,33 @@
-*.tar
-*.tar.*
-*.jar
-*.exe
-*.msi
-*.deb
-*.zip
-*.tgz
-*.log
-*.log.*
-*.sig
-
-pkg/
-src/
-
-# Runtime files
-*.pid
-*.sock
-
-# Database files and backups
-data/
-mysql-data/
-*.sql
-*.dump
-
 # Secrets
-.env
-*.key
 *.pem
+*.key
 *.crt
-id_rsa
-id_rsa.pub
+*.csr
+*.p12
+*.pfx
 
-# Build artifacts
-build/
-tmp/
+# WordPress sensitive files
+wp-config.php
+wordpress-db.txt
+wp-admin-login.txt
 
-# Editor
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+*.swp
+*.tmp
+
+# Logs
+*.log
+
+# OS / IDE
+.DS_Store
+Thumbs.db
 .vscode/
 .idea/
-*.swp
 
-# OS
-.DS_Store
+# Local security reports with sensitive data
+reports/security/raw/
