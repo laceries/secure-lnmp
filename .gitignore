@@ -31,3 +31,10 @@ Thumbs.db
 
 # Local security reports with sensitive data
 reports/security/raw/
+
+# Daily check raw output (sanitized versions go to reports/daily-check/)
+reports/daily-check/.raw/
+
+# Claude Code local settings
+.claude/
+CLAUDE.md
